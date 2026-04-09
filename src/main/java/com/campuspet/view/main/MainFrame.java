@@ -2,6 +2,7 @@ package com.campuspet.view.main;
 
 import com.campuspet.config.AppConfig;
 import com.campuspet.entity.User;
+import com.campuspet.view.admin.AdoptReviewPanel;
 import com.campuspet.view.pet.PetListPanel;
 
 import javax.swing.BorderFactory;
@@ -113,7 +114,9 @@ public class MainFrame extends JFrame {
     private void registerPanels(JPanel cardPanel, User user) {
         switch (user.getRole()) {
             case USER:
-                cardPanel.add(new PetListPanel(), "动物信息");
+                PetListPanel userPetPanel = new PetListPanel();
+                userPetPanel.setCurrentUser(user);
+                cardPanel.add(userPetPanel, "动物信息");
                 cardPanel.add(createTextPanel("校园地图模块将在下一阶段接入静态图片标记功能。"), "校园地图");
                 cardPanel.add(createTextPanel("我的申请模块将在领养申请与审核闭环完成后接入。"), "我的申请");
                 cardPanel.add(createTextPanel("消息通知模块将在公告与审核结果联动后接入。"), "消息通知");
@@ -121,7 +124,9 @@ public class MainFrame extends JFrame {
                 cardPanel.add(createTextPanel("公告查看模块将在公告管理完成后接入。"), "公告查看");
                 break;
             case VOLUNTEER:
-                cardPanel.add(new PetListPanel(), "动物信息");
+                PetListPanel volPetPanel = new PetListPanel();
+                volPetPanel.setCurrentUser(user);
+                cardPanel.add(volPetPanel, "动物信息");
                 cardPanel.add(createTextPanel("校园地图模块将在下一阶段接入静态图片标记功能。"), "校园地图");
                 cardPanel.add(createTextPanel("投喂点申请模块将在下一阶段开发。"), "投喂点申请");
                 cardPanel.add(createTextPanel("投喂记录模块将在下一阶段开发。"), "投喂记录");
@@ -133,7 +138,7 @@ public class MainFrame extends JFrame {
                 break;
             case ADMIN:
                 cardPanel.add(new PetListPanel(), "动物管理");
-                cardPanel.add(createTextPanel("领养审核模块将在下一阶段接入。"), "领养审核");
+                cardPanel.add(new AdoptReviewPanel(), "领养审核");
                 cardPanel.add(createTextPanel("投喂点管理模块将在下一阶段接入。"), "投喂点管理");
                 cardPanel.add(createTextPanel("异常处理模块将在下一阶段接入。"), "异常处理");
                 cardPanel.add(createTextPanel("物资管理模块将在下一阶段接入。"), "物资管理");

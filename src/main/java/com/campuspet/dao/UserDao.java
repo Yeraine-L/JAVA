@@ -10,6 +10,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 public class UserDao {
     public User findByUsername(String username) throws SQLException {
@@ -42,6 +44,20 @@ public class UserDao {
         }
     }
 
+    public User findByUserId(Long userId) throws SQLException {
+        String sql = "select id, username, password, phone, role, status from users where id = ?";
+        try (Connection connection = DbUtil.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setLong(1, userId);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    return mapUser(resultSet);
+                }
+                return null;
+            }
+        }
+    }
+
     public void save(User user) throws SQLException {
         String sql = "insert into users (username, password, phone, role, status, create_time) values (?, ?, ?, ?, ?, ?)";
         try (Connection connection = DbUtil.getConnection();
@@ -65,5 +81,38 @@ public class UserDao {
         user.setRole(RoleType.fromDisplayName(resultSet.getString("role")));
         user.setStatus(resultSet.getString("status"));
         return user;
+    }
+
+    public void updatePhone(Long userId, String phone) throws SQLException {
+        String sql = "update users set phone = ? where id = ?";
+        try (Connection connection = DbUtil.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, phone);
+            statement.setLong(2, userId);
+            statement.executeUpdate();
+        }
+    }
+
+    public void updatePassword(Long userId, String newPassword) throws SQLException {
+        String sql = "update users set password = ? where id = ?";
+        try (Connection connection = DbUtil.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, newPassword);
+            statement.setLong(2, userId);
+            statement.executeUpdate();
+        }
+    }
+
+    public List<User> findAll() throws SQLException {
+        String sql = "select id, username, password, phone, role, status from users order by id desc";
+        try (Connection connection = DbUtil.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql);
+             ResultSet resultSet = statement.executeQuery()) {
+            List<User> list = new ArrayList<>();
+            while (resultSet.next()) {
+                list.add(mapUser(resultSet));
+            }
+            return list;
+        }
     }
 }

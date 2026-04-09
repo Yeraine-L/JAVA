@@ -72,6 +72,20 @@ public class PetDao {
         }
     }
 
+    public Pet findById(Long id) throws SQLException {
+        String sql = "select id, pet_no, name, type, gender, age, photo, location, area, health, personality, rescue_story, status from pets where id = ?";
+        try (Connection connection = DbUtil.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setLong(1, id);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    return mapPet(resultSet);
+                }
+                return null;
+            }
+        }
+    }
+
     private boolean isAll(String value) {
         return value == null || value.trim().isEmpty() || "全部".equals(value);
     }

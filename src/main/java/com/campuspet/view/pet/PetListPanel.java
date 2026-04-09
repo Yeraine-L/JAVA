@@ -1,6 +1,7 @@
 package com.campuspet.view.pet;
 
 import com.campuspet.entity.Pet;
+import com.campuspet.entity.User;
 import com.campuspet.service.PetService;
 import com.campuspet.utils.MessageUtil;
 
@@ -14,6 +15,7 @@ import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
@@ -38,6 +40,7 @@ public class PetListPanel extends JPanel {
     private final JTable table = new JTable(tableModel);
     private final PetService petService = new PetService();
     private final List<Pet> currentPets = new ArrayList<>();
+    private User currentUser;
 
     public PetListPanel() {
         setLayout(new BorderLayout(12, 12));
@@ -64,9 +67,11 @@ public class PetListPanel extends JPanel {
         JButton searchButton = new JButton("搜索");
         JButton resetButton = new JButton("重置");
         JButton detailButton = new JButton("查看详情");
+        JButton applyButton = new JButton("领养申请");
         buttonPanel.add(searchButton);
         buttonPanel.add(resetButton);
         buttonPanel.add(detailButton);
+        buttonPanel.add(applyButton);
         topPanel.add(buttonPanel, BorderLayout.SOUTH);
 
         add(topPanel, BorderLayout.NORTH);
@@ -78,9 +83,14 @@ public class PetListPanel extends JPanel {
         searchButton.addActionListener(event -> loadPets());
         resetButton.addActionListener(event -> resetFilters());
         detailButton.addActionListener(event -> showSelectedPet());
+        applyButton.addActionListener(event -> showApplyDialog());
 
         loadAreas();
         loadPets();
+    }
+
+    public void setCurrentUser(User user) {
+        this.currentUser = user;
     }
 
     private void loadAreas() {
@@ -169,5 +179,26 @@ public class PetListPanel extends JPanel {
 
     private String valueOf(String value) {
         return value == null || value.trim().isEmpty() ? "暂无" : value;
+    }
+
+    private void showApplyDialog() {
+        if (currentUser == null) {
+            MessageUtil.warn(this, "请先登录后再申请领养");
+            return;
+        }
+
+        int selectedRow = table.getSelectedRow();
+        if (selectedRow < 0) {
+            MessageUtil.warn(this, "请先选择一只宠物");
+            return;
+        }
+
+        Pet pet = currentPets.get(selectedRow);
+        if (!"待领养".equals(pet.getStatus())) {
+            MessageUtil.warn(this, "该宠物已被领养");
+            return;
+        }
+
+        new AdoptApplyDialog((javax.swing.JFrame) SwingUtilities.getWindowAncestor(this), pet, currentUser).setVisible(true);
     }
 }
